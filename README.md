@@ -3,10 +3,10 @@
 This program is an example of x86 assembly code that calculates the approximate definite integral of a given function over a specified interval using Simpson's rule.
 
 ### Usage
-
-1. The program starts by displaying a prompt where the user is asked to input 'a,' 'b,' and 'N,' which define the integration interval and the number of subintervals.
-2. Program calculates the approximate integral value using Simpson's rule.
-3. The result will be displayed.
+1. Run 'Simpson.exe' file
+2. The program starts by displaying a prompt where the user is asked to input 'a,' 'b,' and 'N,' which define the integration interval and the number of subintervals.
+3. Program calculates the approximate integral value using Simpson's rule.
+4. The result will be displayed.
 
 ### Code Structure
 
