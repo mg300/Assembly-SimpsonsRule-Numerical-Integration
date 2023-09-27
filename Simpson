@@ -1,0 +1,113 @@
+format PE Console 4.0
+entry start
+include 'win32ax.inc'
+include 'win_macros.inc'
+macro funkcja	     ; cos^2 x
+{
+   fsin 	     ;cos
+   fst [dopotegi]
+   fld [dopotegi]
+   fmulp
+}
+
+section '.text' code readable executable
+
+start:
+    cinvoke printf, <"Podaj poczatek przedzialu: ">
+    cinvoke scanf, <"%lf">, a
+    cinvoke printf, <"Podaj koniec prcczedzialu: ">
+    cinvoke scanf, <"%lf">, b
+    cinvoke printf, <"Podaj N: ">
+    cinvoke scanf, <"%lf">, n
+
+oblicz_dx:    ; dx = (b - a) / n
+	finit	     ; Initializacja
+	fld [b]      ; zaladuj liczbe na stos
+	fsub [a]     ; odejmij a od st(0) i zapisz w st(0)
+	fdiv [n]     ; podziel st(0) przez n i zapisz w st(0)
+	fstp [ldx] ;zapisz st(0) do zmiennej i zdejmij ze stosu
+
+oblicz_x:	   ;x= a+i*dx
+	finit
+	fld [ldx]
+	fld [i]
+	fmulp	    ;mnozenie, i zdejmij ze stosu
+	fadd [a]    ;dodaj a do st0
+	fstp [x]    ;zapisz do x i zdejmij
+
+oblicz_st:		 ; st+=f(x-dx/2)
+
+	finit
+	fld [ldx]
+	fdiv [stala2]
+	fsubr [x]	 ;odwrotne odejmowanie
+	funkcja
+	fadd[wst]	  ;+=
+	fstp[wst]
+	finit
+	fld1	     ;1 na stos
+	fld [i]
+	fadd st0, st1  ; st0+st1  inc i
+	fstp [i]
+
+compare_n_with_counter:  ;
+	finit
+	fld [n]
+	fld [i]
+	fcomi st0, st1
+	jbe ety 	;jump if below or equal      if(i<=n)
+ety2:
+	fcomi st0, st1	; porownaj
+	ja oblicz_s   ; jump if above	if(i>n)
+	jmp oblicz_x  ; skocz do...    else
+ety:
+	fld [x] 	  ; s+=s+f(x)
+	funkcja
+	fadd [ws]
+	fstp [ws]
+	jmp ety2
+
+oblicz_s:		   ;obliczanie s=dx/6 * (f(a) + f(b) + 2 * s + 4 * st)
+	finit
+	fld [a]
+	funkcja
+	fld [b]
+	funkcja
+	faddp
+	fld [ws]
+	fld [stala2]
+	fmulp
+	faddp
+	fld [stala4]
+	fld [wst]
+	fmulp
+	faddp
+	fld [ldx]
+	fld[stala6]
+	fdivp
+	fmulp
+	fstp [ws]
+
+	cinvoke printf, <"Wartosc calki wynosi = %.3lf",10,13,10,13>, dword [ws], dword [ws+4]
+enda:
+
+	invoke getch
+	jmp start
+
+
+section '.data' data readable writeable
+ ; Input
+    a dq 0
+    b dq 0
+    n dq 0
+
+    ldx dq 0   ;dx
+    i dq 1.0   ;i
+    x dq 0     ;x
+    wst dq 0   ;st
+    ws dq 0    ;s
+    stala2 dq 2.0
+    stala4 dq 4.0
+    stala6 dq 6.0
+    dopotegi dq 0
+    tymczasowa dq 0
